@@ -2,11 +2,16 @@
 A collection of ES5 shims for polyfiling Exendscript
 
 
-## Installation
+## Installation  
+
+Currently you can install the package using npm:  
+    
+    npm init -y
+    npm install git+https://github.com/ExtendScript/extendscript-es5-shim.git
 
 ## Usage
 
-## Array, String  and Function notes
+## Array, String and Function notes
 All polyfills could be used in your code.
 
 ## Object notes
@@ -51,4 +56,14 @@ This function uses reflection interface, that ExtendScript provides (see JavaScr
 Use _for in loop_ along with _hasOwnProperty_ function to get own enumerable properties in object.
 
 ### getPrototypeOf
-Use build in `__proto__` property as return value.
+Use build in `__proto__` property as return value.  
+
+## Development  
+
+- Install the devDependencies by running `npm install`
+- Bundle the index.js by running `npm run bundle`
+- Add new prototypes in the respective folders
+- If you need new folders, add the folder to the top of `./bin/concat.js` into the `folders` array
+
+
+

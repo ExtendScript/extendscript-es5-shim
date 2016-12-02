@@ -281,6 +281,48 @@ if (!Array.prototype.lastIndexOf) {
     return -1;
   };
 }
+//reduce.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = 0, value;
+
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k < len && !(k in t)) {
+          k++; 
+        }
+        if (k >= len) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k++];
+      }
+
+    for (; k < len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}
 //map.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
@@ -406,48 +448,6 @@ if (!Array.prototype.reduceRight) {
     return value;
   };
 }
-//reduce.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.21
-// Reference: http://es5.github.io/#x15.4.4.21
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function(callback, initialValue) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduce called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = 0, value;
-
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k < len && !(k in t)) {
-          k++; 
-        }
-        if (k >= len) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k++];
-      }
-
-    for (; k < len; k++) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
-  };
-}
 //some.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
@@ -477,6 +477,48 @@ if (!Array.prototype.some) {
 
     return false;
   };
+}
+//bind.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+WARNING! Bound functions used as constructors NOT supported by this polyfill!
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
+*/
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (this.__class__ !== 'Function') {
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype; 
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+//trim.js
+/*
+https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+*/
+if (!String.prototype.trim) {
+	// Вырезаем BOM и неразрывный пробел
+	String.prototype.trim = function() {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
 }
 //create.js
 if (!Object.create) {
@@ -532,6 +574,23 @@ if (!Object.create) {
     };
   })();
 }
+//freeze.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.9
+// http://es5.github.com/#x15.2.3.9
+if (!Object.freeze) {
+    Object.freeze = function freeze(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.freeze can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
+}
 //defineProperty.js
 if (!Object.defineProperty) {
 
@@ -567,23 +626,6 @@ if (!Object.defineProperty) {
         }
         return object;
     }
-}
-//freeze.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.9
-// http://es5.github.com/#x15.2.3.9
-if (!Object.freeze) {
-    Object.freeze = function freeze(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.freeze can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
 }
 //defineProperties.js
 /*
@@ -651,33 +693,6 @@ if (!Object.defineProperties) {
     return object;
   }
 }
-//getOwnPropertyNames.js
-if (!Object.getOwnPropertyNames) {
-    Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
-
-        if (Object(object) !== object) {
-            throw new TypeError('Object.getOwnPropertyNames can only be called on Objects.');
-        }
-
-        var props = object.reflect.properties;
-        var methods = object.reflect.methods;
-        var all = methods.concat(props);
-        var names = [];
-        for (var i = 0; i < all.length; i++) {
-            names.push(all[i].name);
-        }
-        return names;
-    };
-}
-//getPrototypeOf.js
-if (!Object.getPrototypeOf) {
-	Object.getPrototypeOf = function(object) {
-		if (Object(object) !== object) {
-			throw new TypeError('Object.getPrototypeOf can only be called on Objects.');
-		}
-		return object.__proto__;
-	}
-}
 //getOwnPropertyDescriptor.js
 if (!Object.getOwnPropertyDescriptor) {
 
@@ -706,18 +721,31 @@ if (!Object.getOwnPropertyDescriptor) {
     return descriptor;
 	}
 }
-//isSealed.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.11
-// http://es5.github.com/#x15.2.3.11
-if (!Object.isSealed) {
-    Object.isSealed = function isSealed(object) {
+//getPrototypeOf.js
+if (!Object.getPrototypeOf) {
+	Object.getPrototypeOf = function(object) {
+		if (Object(object) !== object) {
+			throw new TypeError('Object.getPrototypeOf can only be called on Objects.');
+		}
+		return object.__proto__;
+	}
+}
+//getOwnPropertyNames.js
+if (!Object.getOwnPropertyNames) {
+    Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
+
         if (Object(object) !== object) {
-            throw new TypeError('Object.isSealed can only be called on Objects.');
+            throw new TypeError('Object.getOwnPropertyNames can only be called on Objects.');
         }
-        return false;
+
+        var props = object.reflect.properties;
+        var methods = object.reflect.methods;
+        var all = methods.concat(props);
+        var names = [];
+        for (var i = 0; i < all.length; i++) {
+            names.push(all[i].name);
+        }
+        return names;
     };
 }
 //isFrozen.js
@@ -743,6 +771,20 @@ if (!Object.isExtensible) {
             throw new TypeError('Object.isExtensible can only be called on Objects.');
         }
         return true;
+    };
+}
+//isSealed.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.11
+// http://es5.github.com/#x15.2.3.11
+if (!Object.isSealed) {
+    Object.isSealed = function isSealed(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.isSealed can only be called on Objects.');
+        }
+        return false;
     };
 }
 //keys.js
@@ -775,24 +817,6 @@ if (!Object.keys) {
     };
   }());
 }
-//preventExtensions.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.10
-// http://es5.github.com/#x15.2.3.10
-if (!Object.preventExtensions) {
-    Object.preventExtensions = function preventExtensions(object) {
-
-        if (Object(object) !== object) {
-            throw new TypeError('Object.preventExtensions can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
 //seal.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -810,45 +834,21 @@ if (!Object.seal) {
         return object;
     };
 }
-//bind.js
+//preventExtensions.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
-WARNING! Bound functions used as constructors NOT supported by this polyfill!
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
 */
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (this.__class__ !== 'Function') {
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
+// ES5 15.2.3.10
+// http://es5.github.com/#x15.2.3.10
+if (!Object.preventExtensions) {
+    Object.preventExtensions = function preventExtensions(object) {
 
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    if (this.prototype) {
-      // Function.prototype doesn't have a prototype property
-      fNOP.prototype = this.prototype; 
-    }
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-//trim.js
-/*
-https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
-*/
-if (!String.prototype.trim) {
-	// Вырезаем BOM и неразрывный пробел
-	String.prototype.trim = function() {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
+        if (Object(object) !== object) {
+            throw new TypeError('Object.preventExtensions can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
 }
