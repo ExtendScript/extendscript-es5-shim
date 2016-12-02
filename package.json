@@ -1,10 +1,11 @@
 {
   "name": "extendscript-es5-shim",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "a collection of useful es5-shims for Extendscript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle":"node bin/concat.js"
   },
   "repository": {
     "type": "git",
@@ -17,12 +18,16 @@
     "sham",
     "prototype"
   ],
-  "contributers":[
+  "contributers": [
     "Fabian Morón Zirfas <fabian.moron.zirfas@gmail.com> (http://fabianmoronzirfas.me)",
-    "EugenTepin"],
+    "EugenTepin"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ExtendScript/extendscript-es5-shim/issues"
   },
-  "homepage": "https://github.com/ExtendScript/extendscript-es5-shim#readme"
+  "homepage": "https://github.com/ExtendScript/extendscript-es5-shim#readme",
+  "devDependencies": {
+    "cat": "^0.2.0"
+  }
 }
