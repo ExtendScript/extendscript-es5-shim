@@ -1,5 +1,5 @@
 # extendscript-es5-shim
-A collection of ES5 shims for polyfiling Exendscript
+A collection of ES5 shims for polyfiling Exendscript (for es6 shims take a look at https://github.com/ExtendScript/extendscript-es6-shim)
 
 
 ## Installation  
