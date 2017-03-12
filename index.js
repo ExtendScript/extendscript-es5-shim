@@ -102,6 +102,64 @@ if (!Array.prototype.filter) {
     return res;
   };
 }
+//forEach.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.18
+// Reference: http://es5.github.io/#x15.4.4.18
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(callback, thisArg) {
+
+
+        if (this === void 0 || this === null) {
+            throw new TypeError('Array.prototype.forEach called on null or undefined');
+        }
+
+        // 1. Let O be the result of calling toObject() passing the
+        // |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get() internal
+        // method of O with the argument "length".
+        // 3. Let len be toUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If isCallable(callback) is false, throw a TypeError exception. 
+        // See: http://es5.github.com/#x9.11
+        if (callback.__class__ !== 'Function') {
+            throw new TypeError(callback + ' is not a function');
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let
+        // T be undefined.
+        var T = (arguments.length > 1) ? thisArg : void 0;
+
+
+        // 6. Let k be 0
+        //k = 0;
+
+        // 7. Repeat, while k < len
+        for (var k = 0; k < len; k++) {
+            var kValue;
+            // a. Let Pk be ToString(k).
+            //    This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty
+            //    internal method of O with argument Pk.
+            //    This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+                // i. Let kValue be the result of calling the Get internal
+                // method of O with argument Pk.
+                kValue = O[k];
+                // ii. Call the Call internal method of callback with T as
+                // the this value and argument list containing kValue, k, and O.
+                callback.call(T, kValue, k, O);
+            }
+        }
+        // 8. return undefined
+    }
+}
 //indexOf.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
@@ -171,64 +229,6 @@ if (!Array.prototype.indexOf) {
     return -1;
   };
 }
-//forEach.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.18
-// Reference: http://es5.github.io/#x15.4.4.18
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(callback, thisArg) {
-
-
-        if (this === void 0 || this === null) {
-            throw new TypeError('Array.prototype.forEach called on null or undefined');
-        }
-
-        // 1. Let O be the result of calling toObject() passing the
-        // |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get() internal
-        // method of O with the argument "length".
-        // 3. Let len be toUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If isCallable(callback) is false, throw a TypeError exception. 
-        // See: http://es5.github.com/#x9.11
-        if (callback.__class__ !== 'Function') {
-            throw new TypeError(callback + ' is not a function');
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let
-        // T be undefined.
-        var T = (arguments.length > 1) ? thisArg : void 0;
-
-
-        // 6. Let k be 0
-        //k = 0;
-
-        // 7. Repeat, while k < len
-        for (var k = 0; k < len; k++) {
-            var kValue;
-            // a. Let Pk be ToString(k).
-            //    This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty
-            //    internal method of O with argument Pk.
-            //    This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-                // i. Let kValue be the result of calling the Get internal
-                // method of O with argument Pk.
-                kValue = O[k];
-                // ii. Call the Call internal method of callback with T as
-                // the this value and argument list containing kValue, k, and O.
-                callback.call(T, kValue, k, O);
-            }
-        }
-        // 8. return undefined
-    }
-}
 //isArray.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
@@ -240,87 +240,6 @@ if (!Array.isArray) {
       return false;
     }
   	return (arg.__class__ === 'Array');
-  };
-}
-//lastIndexOf.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.15
-// Reference: http://es5.github.io/#x15.4.4.15
-if (!Array.prototype.lastIndexOf) {
-  Array.prototype.lastIndexOf = function(searchElement, fromIndex) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.lastIndexOf called on null or undefined');
-    }
-
-    var n, k,
-      t = Object(this),
-      len = t.length >>> 0;
-    if (len === 0) {
-      return -1;
-    }
-
-    n = len - 1;
-    if (arguments.length > 1) {
-      n = Number(arguments[1]);
-      if (n != n) {
-        n = 0;
-      }
-      else if (n != 0 && n != Infinity && n != -Infinity) {
-        n = (n > 0 || -1) * Math.floor(Math.abs(n));
-      }
-    }
-
-    for (k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
-      if (k in t && t[k] === searchElement) {
-        return k;
-      }
-    }
-    return -1;
-  };
-}
-//reduce.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.21
-// Reference: http://es5.github.io/#x15.4.4.21
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function(callback, initialValue) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduce called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = 0, value;
-
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k < len && !(k in t)) {
-          k++; 
-        }
-        if (k >= len) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k++];
-      }
-
-    for (; k < len; k++) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
   };
 }
 //map.js
@@ -407,6 +326,87 @@ if (!Array.prototype.map) {
     return A;
   };
 }
+//lastIndexOf.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.15
+// Reference: http://es5.github.io/#x15.4.4.15
+if (!Array.prototype.lastIndexOf) {
+  Array.prototype.lastIndexOf = function(searchElement, fromIndex) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.lastIndexOf called on null or undefined');
+    }
+
+    var n, k,
+      t = Object(this),
+      len = t.length >>> 0;
+    if (len === 0) {
+      return -1;
+    }
+
+    n = len - 1;
+    if (arguments.length > 1) {
+      n = Number(arguments[1]);
+      if (n != n) {
+        n = 0;
+      }
+      else if (n != 0 && n != Infinity && n != -Infinity) {
+        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+      }
+    }
+
+    for (k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
+      if (k in t && t[k] === searchElement) {
+        return k;
+      }
+    }
+    return -1;
+  };
+}
+//reduce.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = 0, value;
+
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k < len && !(k in t)) {
+          k++; 
+        }
+        if (k >= len) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k++];
+      }
+
+    for (; k < len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}
 //reduceRight.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
@@ -448,6 +448,16 @@ if (!Array.prototype.reduceRight) {
     return value;
   };
 }
+//trim.js
+/*
+https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+*/
+if (!String.prototype.trim) {
+	// Вырезаем BOM и неразрывный пробел
+	String.prototype.trim = function() {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
+}
 //some.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
@@ -477,48 +487,6 @@ if (!Array.prototype.some) {
 
     return false;
   };
-}
-//bind.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
-WARNING! Bound functions used as constructors NOT supported by this polyfill!
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
-*/
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (this.__class__ !== 'Function') {
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    if (this.prototype) {
-      // Function.prototype doesn't have a prototype property
-      fNOP.prototype = this.prototype; 
-    }
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-//trim.js
-/*
-https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
-*/
-if (!String.prototype.trim) {
-	// Вырезаем BOM и неразрывный пробел
-	String.prototype.trim = function() {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
 }
 //create.js
 if (!Object.create) {
@@ -573,59 +541,6 @@ if (!Object.create) {
       return obj;
     };
   })();
-}
-//freeze.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.9
-// http://es5.github.com/#x15.2.3.9
-if (!Object.freeze) {
-    Object.freeze = function freeze(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.freeze can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
-//defineProperty.js
-if (!Object.defineProperty) {
-
-    Object.defineProperty = function defineProperty(object, property, descriptor) {
-
-        if (Object(object) !== object) {
-            throw new TypeError('Object.defineProperty can only be called on Objects.');
-        }
-
-        if (Object(descriptor) !== descriptor) {
-            throw new TypeError('Property description can only be an Object.');
-        }
-
-        if ('get' in descriptor || 'set' in descriptor) {
-            throw new TypeError('getters & setters can not be defined on this javascript engine');
-        }
-        // If it's a data property.
-        if ('value' in descriptor) {
-            // fail silently if 'writable', 'enumerable', or 'configurable'
-            // are requested but not supported
-            // can't implement these features; allow true but not false
-            /* if ( 
-                     ('writable' in descriptor && !descriptor.writable) ||
-                     ('enumerable' in descriptor && !descriptor.enumerable) ||
-                     ('configurable' in descriptor && !descriptor.configurable)
-                 )
-                     {
-                         throw new RangeError('This implementation of Object.defineProperty does not support configurable, enumerable, or writable properties SET to FALSE.');
-                     }*/
-
-
-            object[property] = descriptor.value;
-        }
-        return object;
-    }
 }
 //defineProperties.js
 /*
@@ -693,6 +608,59 @@ if (!Object.defineProperties) {
     return object;
   }
 }
+//defineProperty.js
+if (!Object.defineProperty) {
+
+    Object.defineProperty = function defineProperty(object, property, descriptor) {
+
+        if (Object(object) !== object) {
+            throw new TypeError('Object.defineProperty can only be called on Objects.');
+        }
+
+        if (Object(descriptor) !== descriptor) {
+            throw new TypeError('Property description can only be an Object.');
+        }
+
+        if ('get' in descriptor || 'set' in descriptor) {
+            throw new TypeError('getters & setters can not be defined on this javascript engine');
+        }
+        // If it's a data property.
+        if ('value' in descriptor) {
+            // fail silently if 'writable', 'enumerable', or 'configurable'
+            // are requested but not supported
+            // can't implement these features; allow true but not false
+            /* if ( 
+                     ('writable' in descriptor && !descriptor.writable) ||
+                     ('enumerable' in descriptor && !descriptor.enumerable) ||
+                     ('configurable' in descriptor && !descriptor.configurable)
+                 )
+                     {
+                         throw new RangeError('This implementation of Object.defineProperty does not support configurable, enumerable, or writable properties SET to FALSE.');
+                     }*/
+
+
+            object[property] = descriptor.value;
+        }
+        return object;
+    }
+}
+//freeze.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.9
+// http://es5.github.com/#x15.2.3.9
+if (!Object.freeze) {
+    Object.freeze = function freeze(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.freeze can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
+}
 //getOwnPropertyDescriptor.js
 if (!Object.getOwnPropertyDescriptor) {
 
@@ -721,15 +689,6 @@ if (!Object.getOwnPropertyDescriptor) {
     return descriptor;
 	}
 }
-//getPrototypeOf.js
-if (!Object.getPrototypeOf) {
-	Object.getPrototypeOf = function(object) {
-		if (Object(object) !== object) {
-			throw new TypeError('Object.getPrototypeOf can only be called on Objects.');
-		}
-		return object.__proto__;
-	}
-}
 //getOwnPropertyNames.js
 if (!Object.getOwnPropertyNames) {
     Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
@@ -748,6 +707,26 @@ if (!Object.getOwnPropertyNames) {
         return names;
     };
 }
+//getPrototypeOf.js
+if (!Object.getPrototypeOf) {
+	Object.getPrototypeOf = function(object) {
+		if (Object(object) !== object) {
+			throw new TypeError('Object.getPrototypeOf can only be called on Objects.');
+		}
+		return object.__proto__;
+	}
+}
+//isExtensible.js
+// ES5 15.2.3.13
+// http://es5.github.com/#x15.2.3.13
+if (!Object.isExtensible) {
+    Object.isExtensible = function isExtensible(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.isExtensible can only be called on Objects.');
+        }
+        return true;
+    };
+}
 //isFrozen.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -760,17 +739,6 @@ if (!Object.isFrozen) {
             throw new TypeError('Object.isFrozen can only be called on Objects.');
         }
         return false;
-    };
-}
-//isExtensible.js
-// ES5 15.2.3.13
-// http://es5.github.com/#x15.2.3.13
-if (!Object.isExtensible) {
-    Object.isExtensible = function isExtensible(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.isExtensible can only be called on Objects.');
-        }
-        return true;
     };
 }
 //isSealed.js
@@ -817,23 +785,6 @@ if (!Object.keys) {
     };
   }());
 }
-//seal.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.8
-// http://es5.github.com/#x15.2.3.8
-if (!Object.seal) {
-    Object.seal = function seal(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.seal can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
 //preventExtensions.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -851,4 +802,55 @@ if (!Object.preventExtensions) {
         // but insecure code.
         return object;
     };
+}
+//seal.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.8
+// http://es5.github.com/#x15.2.3.8
+if (!Object.seal) {
+    Object.seal = function seal(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.seal can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
+}
+//.DS_Store
+   Bud1            %                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @      �                                        @      �                                          @      �                                          @                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   E   %                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       DSDB                             `          �                                           @      �                                          @      �                                          @                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+//bind.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+WARNING! Bound functions used as constructors NOT supported by this polyfill!
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
+*/
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (this.__class__ !== 'Function') {
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype; 
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
 }
