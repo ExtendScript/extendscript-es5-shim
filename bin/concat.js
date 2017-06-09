@@ -10,6 +10,7 @@ fs.writeFileSync(path.resolve(process.cwd(), bundlePath), '');
 // loop folders
 folders.forEach(folder => {
   fs.readdir(folder, (err, files) => {
+    files = files.filter(file => !(/(^|\/)\.[^\/\.]/g).test(file))
     files.forEach(file => {
       // console.log(file);
       let filePath = path.resolve(process.cwd(), `${folder}${file}`);
@@ -23,5 +24,4 @@ folders.forEach(folder => {
       });
     });
   });
-
 });
