@@ -30,9 +30,6 @@
   "devDependencies": {
     "cat": "^0.2.0"
   },
-  "bin": {
-    "y": "concat.js"
-  },
   "dependencies": {},
   "author": "Fabian Morón Zirfas <fabian.moron.zirfas@gmail.com> (http://fabianmoronzirfas.me)"
 }
