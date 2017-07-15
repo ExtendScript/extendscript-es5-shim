@@ -1,5 +1,5 @@
 {
-  "name": "y",
+  "name": "extendscript-es5-shim",
   "version": "0.1.0",
   "description": "a collection of useful es5-shims for Extendscript",
   "main": "index.js",
