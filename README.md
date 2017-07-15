@@ -4,10 +4,8 @@ A collection of ES5 shims for polyfiling Exendscript (for es6 shims take a look 
 
 ## Installation  
 
-Currently you can install the package using npm:  
-    
     npm init -y
-    npm install git+https://github.com/ExtendScript/extendscript-es5-shim.git
+    npm install extendscript-es5-shim
 
 ## Usage
 
