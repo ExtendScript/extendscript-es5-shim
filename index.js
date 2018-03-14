@@ -1,42 +1,92 @@
-//filter.js
+//bind.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+WARNING! Bound functions used as constructors NOT supported by this polyfill!
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
 */
-if (!Array.prototype.filter) {
-  Array.prototype.filter = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.filter called on null or undefined');
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (this.__class__ !== 'Function') {
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
     }
 
-    var t = Object(this);
-    var len = t.length >>> 0;
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
 
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype; 
     }
+    fBound.prototype = new fNOP();
 
-    var res = [];
-
-    var T = (arguments.length > 1) ? thisArg : void 0;
-    
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        var val = t[i];
-
-        // NOTE: Technically this should Object.defineProperty at
-        //       the next index, as push can be affected by
-        //       properties on Object.prototype and Array.prototype.
-        //       But that method's new, and collisions should be
-        //       rare, so use the more-compatible alternative.
-        if (callback.call(T, val, i, t)) {
-          res.push(val);
-        }
-      }
-    }
-
-    return res;
+    return fBound;
   };
+}
+//forEach.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.18
+// Reference: http://es5.github.io/#x15.4.4.18
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(callback, thisArg) {
+
+
+        if (this === void 0 || this === null) {
+            throw new TypeError('Array.prototype.forEach called on null or undefined');
+        }
+
+        // 1. Let O be the result of calling toObject() passing the
+        // |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get() internal
+        // method of O with the argument "length".
+        // 3. Let len be toUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If isCallable(callback) is false, throw a TypeError exception. 
+        // See: http://es5.github.com/#x9.11
+        if (callback.__class__ !== 'Function') {
+            throw new TypeError(callback + ' is not a function');
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let
+        // T be undefined.
+        var T = (arguments.length > 1) ? thisArg : void 0;
+
+
+        // 6. Let k be 0
+        //k = 0;
+
+        // 7. Repeat, while k < len
+        for (var k = 0; k < len; k++) {
+            var kValue;
+            // a. Let Pk be ToString(k).
+            //    This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty
+            //    internal method of O with argument Pk.
+            //    This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+                // i. Let kValue be the result of calling the Get internal
+                // method of O with argument Pk.
+                kValue = O[k];
+                // ii. Call the Call internal method of callback with T as
+                // the this value and argument list containing kValue, k, and O.
+                callback.call(T, kValue, k, O);
+            }
+        }
+        // 8. return undefined
+    }
 }
 //every.js
 /*
@@ -102,94 +152,44 @@ if (!Array.prototype.every) {
     return true;
   };
 }
-//forEach.js
+//filter.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.18
-// Reference: http://es5.github.io/#x15.4.4.18
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(callback, thisArg) {
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(callback, thisArg) {
 
-
-        if (this === void 0 || this === null) {
-            throw new TypeError('Array.prototype.forEach called on null or undefined');
-        }
-
-        // 1. Let O be the result of calling toObject() passing the
-        // |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get() internal
-        // method of O with the argument "length".
-        // 3. Let len be toUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If isCallable(callback) is false, throw a TypeError exception. 
-        // See: http://es5.github.com/#x9.11
-        if (callback.__class__ !== 'Function') {
-            throw new TypeError(callback + ' is not a function');
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let
-        // T be undefined.
-        var T = (arguments.length > 1) ? thisArg : void 0;
-
-
-        // 6. Let k be 0
-        //k = 0;
-
-        // 7. Repeat, while k < len
-        for (var k = 0; k < len; k++) {
-            var kValue;
-            // a. Let Pk be ToString(k).
-            //    This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty
-            //    internal method of O with argument Pk.
-            //    This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-                // i. Let kValue be the result of calling the Get internal
-                // method of O with argument Pk.
-                kValue = O[k];
-                // ii. Call the Call internal method of callback with T as
-                // the this value and argument list containing kValue, k, and O.
-                callback.call(T, kValue, k, O);
-            }
-        }
-        // 8. return undefined
-    }
-}
-//bind.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
-WARNING! Bound functions used as constructors NOT supported by this polyfill!
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
-*/
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (this.__class__ !== 'Function') {
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.filter called on null or undefined');
     }
 
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
+    var t = Object(this);
+    var len = t.length >>> 0;
 
-    if (this.prototype) {
-      // Function.prototype doesn't have a prototype property
-      fNOP.prototype = this.prototype; 
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
     }
-    fBound.prototype = new fNOP();
 
-    return fBound;
+    var res = [];
+
+    var T = (arguments.length > 1) ? thisArg : void 0;
+    
+    for (var i = 0; i < len; i++) {
+      if (i in t) {
+        var val = t[i];
+
+        // NOTE: Technically this should Object.defineProperty at
+        //       the next index, as push can be affected by
+        //       properties on Object.prototype and Array.prototype.
+        //       But that method's new, and collisions should be
+        //       rare, so use the more-compatible alternative.
+        if (callback.call(T, val, i, t)) {
+          res.push(val);
+        }
+      }
+    }
+
+    return res;
   };
 }
 //isArray.js
@@ -203,90 +203,6 @@ if (!Array.isArray) {
       return false;
     }
   	return (arg.__class__ === 'Array');
-  };
-}
-//map.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.19
-// Reference: http://es5.github.io/#x15.4.4.19
-if (!Array.prototype.map) {
-
-  Array.prototype.map = function(callback, thisArg) {
-
-    var T, A, k;
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.map called on null or undefined');
-    }
-
-    // 1. Let O be the result of calling ToObject passing the |this| 
-    //    value as the argument.
-    var O = Object(this);
-
-    // 2. Let lenValue be the result of calling the Get internal 
-    //    method of O with the argument "length".
-    // 3. Let len be ToUint32(lenValue).
-    var len = O.length >>> 0;
-
-    // 4. If IsCallable(callback) is false, throw a TypeError exception.
-    // See: http://es5.github.com/#x9.11
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-    T = (arguments.length > 1) ? thisArg : void 0;
-
-    // 6. Let A be a new array created as if by the expression new Array(len) 
-    //    where Array is the standard built-in constructor with that name and 
-    //    len is the value of len.
-    A = new Array(len);
-
-    for (var k = 0; k < len; k++) {
-
-      var kValue, mappedValue;
-
-      // a. Let Pk be ToString(k).
-      //   This is implicit for LHS operands of the in operator
-      // b. Let kPresent be the result of calling the HasProperty internal 
-      //    method of O with argument Pk.
-      //   This step can be combined with c
-      // c. If kPresent is true, then
-      if (k in O) {
-
-        // i. Let kValue be the result of calling the Get internal 
-        //    method of O with argument Pk.
-        kValue = O[k];
-
-        // ii. Let mappedValue be the result of calling the Call internal 
-        //     method of callback with T as the this value and argument 
-        //     list containing kValue, k, and O.
-        mappedValue = callback.call(T, kValue, k, O);
-
-        // iii. Call the DefineOwnProperty internal method of A with arguments
-        // Pk, Property Descriptor
-        // { Value: mappedValue,
-        //   Writable: true,
-        //   Enumerable: true,
-        //   Configurable: true },
-        // and false.
-
-        // In browsers that support Object.defineProperty, use the following:
-        // Object.defineProperty(A, k, {
-        //   value: mappedValue,
-        //   writable: true,
-        //   enumerable: true,
-        //   configurable: true
-        // });
-
-        // For best browser support, use the following:
-        A[k] = mappedValue;
-      }
-    }
-    // 9. return A
-    return A;
   };
 }
 //indexOf.js
@@ -397,76 +313,88 @@ if (!Array.prototype.lastIndexOf) {
     return -1;
   };
 }
-//reduce.js
+//map.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.21
-// Reference: http://es5.github.io/#x15.4.4.21
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function(callback, initialValue) {
+// Production steps of ECMA-262, Edition 5, 15.4.4.19
+// Reference: http://es5.github.io/#x15.4.4.19
+if (!Array.prototype.map) {
+
+  Array.prototype.map = function(callback, thisArg) {
+
+    var T, A, k;
 
     if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduce called on null or undefined');
+      throw new TypeError('Array.prototype.map called on null or undefined');
     }
 
+    // 1. Let O be the result of calling ToObject passing the |this| 
+    //    value as the argument.
+    var O = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get internal 
+    //    method of O with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = O.length >>> 0;
+
+    // 4. If IsCallable(callback) is false, throw a TypeError exception.
+    // See: http://es5.github.com/#x9.11
     if (callback.__class__ !== 'Function') {
       throw new TypeError(callback + ' is not a function');
     }
 
-    var t = Object(this), len = t.length >>> 0, k = 0, value;
+    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+    T = (arguments.length > 1) ? thisArg : void 0;
 
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k < len && !(k in t)) {
-          k++; 
-        }
-        if (k >= len) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k++];
-      }
+    // 6. Let A be a new array created as if by the expression new Array(len) 
+    //    where Array is the standard built-in constructor with that name and 
+    //    len is the value of len.
+    A = new Array(len);
 
-    for (; k < len; k++) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
-  };
-}
-//some.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.17
-// Reference: http://es5.github.io/#x15.4.4.17
-if (!Array.prototype.some) {
-  Array.prototype.some = function(callback, thisArg) {
+    for (var k = 0; k < len; k++) {
 
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.some called on null or undefined');
-    }
+      var kValue, mappedValue;
 
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the HasProperty internal 
+      //    method of O with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      if (k in O) {
 
-    var t = Object(this);
-    var len = t.length >>> 0;
+        // i. Let kValue be the result of calling the Get internal 
+        //    method of O with argument Pk.
+        kValue = O[k];
 
-    var T = arguments.length > 1 ? thisArg : void 0;
-    for (var i = 0; i < len; i++) {
-      if (i in t && callback.call(T, t[i], i, t)) {
-        return true;
+        // ii. Let mappedValue be the result of calling the Call internal 
+        //     method of callback with T as the this value and argument 
+        //     list containing kValue, k, and O.
+        mappedValue = callback.call(T, kValue, k, O);
+
+        // iii. Call the DefineOwnProperty internal method of A with arguments
+        // Pk, Property Descriptor
+        // { Value: mappedValue,
+        //   Writable: true,
+        //   Enumerable: true,
+        //   Configurable: true },
+        // and false.
+
+        // In browsers that support Object.defineProperty, use the following:
+        // Object.defineProperty(A, k, {
+        //   value: mappedValue,
+        //   writable: true,
+        //   enumerable: true,
+        //   configurable: true
+        // });
+
+        // For best browser support, use the following:
+        A[k] = mappedValue;
       }
     }
-
-    return false;
+    // 9. return A
+    return A;
   };
 }
 //reduceRight.js
@@ -509,6 +437,168 @@ if (!Array.prototype.reduceRight) {
     }
     return value;
   };
+}
+//reduce.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = 0, value;
+
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k < len && !(k in t)) {
+          k++; 
+        }
+        if (k >= len) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k++];
+      }
+
+    for (; k < len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}
+//create.js
+if (!Object.create) {
+  // Production steps of ECMA-262, Edition 5, 15.2.3.5
+  // Reference: http://es5.github.io/#x15.2.3.5
+  Object.create = (function() {
+    // To save on memory, use a shared constructor
+    function Temp() {}
+
+    // make a safe reference to Object.prototype.hasOwnProperty
+    var hasOwn = Object.prototype.hasOwnProperty;
+
+    return function(O) {
+      // 1. If Type(O) is not Object or Null throw a TypeError exception.
+      if (Object(O) !== O && O !== null) {
+        throw TypeError('Object prototype may only be an Object or null');
+      }
+
+      // 2. Let obj be the result of creating a new object as if by the
+      //    expression new Object() where Object is the standard built-in
+      //    constructor with that name
+      // 3. Set the [[Prototype]] internal property of obj to O.
+      Temp.prototype = O;
+      var obj = new Temp();
+      Temp.prototype = null; // Let's not keep a stray reference to O...
+
+      // 4. If the argument Properties is present and not undefined, add
+      //    own properties to obj as if by calling the standard built-in
+      //    function Object.defineProperties with arguments obj and
+      //    Properties.
+      if (arguments.length > 1) {
+        // Object.defineProperties does ToObject on its first argument.
+        var Properties = Object(arguments[1]);
+        for (var prop in Properties) {
+          if (hasOwn.call(Properties, prop)) {
+            var descriptor = Properties[prop];
+            if (Object(descriptor) !== descriptor) {
+              throw TypeError(prop + 'must be an object');
+            }
+            if ('get' in descriptor || 'set' in descriptor) {
+              throw new TypeError('getters & setters can not be defined on this javascript engine');
+            }
+            if ('value' in descriptor) {
+              obj[prop] = Properties[prop];
+            }
+
+          }
+        }
+      }
+
+      // 5. Return obj
+      return obj;
+    };
+  })();
+}
+//some.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.17
+// Reference: http://es5.github.io/#x15.4.4.17
+if (!Array.prototype.some) {
+  Array.prototype.some = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.some called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    var T = arguments.length > 1 ? thisArg : void 0;
+    for (var i = 0; i < len; i++) {
+      if (i in t && callback.call(T, t[i], i, t)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+}
+//defineProperty.js
+if (!Object.defineProperty) {
+
+    Object.defineProperty = function defineProperty(object, property, descriptor) {
+
+        if (Object(object) !== object) {
+            throw new TypeError('Object.defineProperty can only be called on Objects.');
+        }
+
+        if (Object(descriptor) !== descriptor) {
+            throw new TypeError('Property description can only be an Object.');
+        }
+
+        if ('get' in descriptor || 'set' in descriptor) {
+            throw new TypeError('getters & setters can not be defined on this javascript engine');
+        }
+        // If it's a data property.
+        if ('value' in descriptor) {
+            // fail silently if 'writable', 'enumerable', or 'configurable'
+            // are requested but not supported
+            // can't implement these features; allow true but not false
+            /* if ( 
+                     ('writable' in descriptor && !descriptor.writable) ||
+                     ('enumerable' in descriptor && !descriptor.enumerable) ||
+                     ('configurable' in descriptor && !descriptor.configurable)
+                 )
+                     {
+                         throw new RangeError('This implementation of Object.defineProperty does not support configurable, enumerable, or writable properties SET to FALSE.');
+                     }*/
+
+
+            object[property] = descriptor.value;
+        }
+        return object;
+    }
 }
 //defineProperties.js
 /*
@@ -602,6 +692,23 @@ if (!Object.getOwnPropertyDescriptor) {
         return descriptor;
     }
 }
+//freeze.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.9
+// http://es5.github.com/#x15.2.3.9
+if (!Object.freeze) {
+    Object.freeze = function freeze(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.freeze can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
+}
 //getOwnPropertyNames.js
 if (!Object.getOwnPropertyNames) {
     Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
@@ -629,113 +736,6 @@ if (!Object.getOwnPropertyNames) {
         return names;
     };
 }
-//create.js
-if (!Object.create) {
-  // Production steps of ECMA-262, Edition 5, 15.2.3.5
-  // Reference: http://es5.github.io/#x15.2.3.5
-  Object.create = (function() {
-    // To save on memory, use a shared constructor
-    function Temp() {}
-
-    // make a safe reference to Object.prototype.hasOwnProperty
-    var hasOwn = Object.prototype.hasOwnProperty;
-
-    return function(O) {
-      // 1. If Type(O) is not Object or Null throw a TypeError exception.
-      if (Object(O) !== O && O !== null) {
-        throw TypeError('Object prototype may only be an Object or null');
-      }
-
-      // 2. Let obj be the result of creating a new object as if by the
-      //    expression new Object() where Object is the standard built-in
-      //    constructor with that name
-      // 3. Set the [[Prototype]] internal property of obj to O.
-      Temp.prototype = O;
-      var obj = new Temp();
-      Temp.prototype = null; // Let's not keep a stray reference to O...
-
-      // 4. If the argument Properties is present and not undefined, add
-      //    own properties to obj as if by calling the standard built-in
-      //    function Object.defineProperties with arguments obj and
-      //    Properties.
-      if (arguments.length > 1) {
-        // Object.defineProperties does ToObject on its first argument.
-        var Properties = Object(arguments[1]);
-        for (var prop in Properties) {
-          if (hasOwn.call(Properties, prop)) {
-            var descriptor = Properties[prop];
-            if (Object(descriptor) !== descriptor) {
-              throw TypeError(prop + 'must be an object');
-            }
-            if ('get' in descriptor || 'set' in descriptor) {
-              throw new TypeError('getters & setters can not be defined on this javascript engine');
-            }
-            if ('value' in descriptor) {
-              obj[prop] = Properties[prop];
-            }
-
-          }
-        }
-      }
-
-      // 5. Return obj
-      return obj;
-    };
-  })();
-}
-//defineProperty.js
-if (!Object.defineProperty) {
-
-    Object.defineProperty = function defineProperty(object, property, descriptor) {
-
-        if (Object(object) !== object) {
-            throw new TypeError('Object.defineProperty can only be called on Objects.');
-        }
-
-        if (Object(descriptor) !== descriptor) {
-            throw new TypeError('Property description can only be an Object.');
-        }
-
-        if ('get' in descriptor || 'set' in descriptor) {
-            throw new TypeError('getters & setters can not be defined on this javascript engine');
-        }
-        // If it's a data property.
-        if ('value' in descriptor) {
-            // fail silently if 'writable', 'enumerable', or 'configurable'
-            // are requested but not supported
-            // can't implement these features; allow true but not false
-            /* if ( 
-                     ('writable' in descriptor && !descriptor.writable) ||
-                     ('enumerable' in descriptor && !descriptor.enumerable) ||
-                     ('configurable' in descriptor && !descriptor.configurable)
-                 )
-                     {
-                         throw new RangeError('This implementation of Object.defineProperty does not support configurable, enumerable, or writable properties SET to FALSE.');
-                     }*/
-
-
-            object[property] = descriptor.value;
-        }
-        return object;
-    }
-}
-//freeze.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.9
-// http://es5.github.com/#x15.2.3.9
-if (!Object.freeze) {
-    Object.freeze = function freeze(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.freeze can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
 //getPrototypeOf.js
 if (!Object.getPrototypeOf) {
 	Object.getPrototypeOf = function(object) {
@@ -744,33 +744,6 @@ if (!Object.getPrototypeOf) {
 		}
 		return object.__proto__;
 	}
-}
-//keys.js
-if (!Object.keys) {
-    Object.keys = function(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.keys can only be called on Objects.');
-        }
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
-        var result = [];
-        for (var prop in object) {
-            if (hasOwnProperty.call(object, prop)) {
-                result.push(prop);
-            }
-        }
-        return result;
-    };
-}
-//isExtensible.js
-// ES5 15.2.3.13
-// http://es5.github.com/#x15.2.3.13
-if (!Object.isExtensible) {
-    Object.isExtensible = function isExtensible(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.isExtensible can only be called on Objects.');
-        }
-        return true;
-    };
 }
 //isFrozen.js
 /*
@@ -786,18 +759,15 @@ if (!Object.isFrozen) {
         return false;
     };
 }
-//isSealed.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.11
-// http://es5.github.com/#x15.2.3.11
-if (!Object.isSealed) {
-    Object.isSealed = function isSealed(object) {
+//isExtensible.js
+// ES5 15.2.3.13
+// http://es5.github.com/#x15.2.3.13
+if (!Object.isExtensible) {
+    Object.isExtensible = function isExtensible(object) {
         if (Object(object) !== object) {
-            throw new TypeError('Object.isSealed can only be called on Objects.');
+            throw new TypeError('Object.isExtensible can only be called on Objects.');
         }
-        return false;
+        return true;
     };
 }
 //preventExtensions.js
@@ -818,6 +788,20 @@ if (!Object.preventExtensions) {
         return object;
     };
 }
+//isSealed.js
+/*
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
+*/
+// ES5 15.2.3.11
+// http://es5.github.com/#x15.2.3.11
+if (!Object.isSealed) {
+    Object.isSealed = function isSealed(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.isSealed can only be called on Objects.');
+        }
+        return false;
+    };
+}
 //seal.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -833,6 +817,22 @@ if (!Object.seal) {
         // allows "securable" code to "gracefully" degrade to working
         // but insecure code.
         return object;
+    };
+}
+//keys.js
+if (!Object.keys) {
+    Object.keys = function(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.keys can only be called on Objects.');
+        }
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var result = [];
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                result.push(prop);
+            }
+        }
+        return result;
     };
 }
 //trim.js
