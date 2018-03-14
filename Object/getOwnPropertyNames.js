@@ -4,13 +4,22 @@ if (!Object.getOwnPropertyNames) {
         if (Object(object) !== object) {
             throw new TypeError('Object.getOwnPropertyNames can only be called on Objects.');
         }
-
-        var props = object.reflect.properties;
-        var methods = object.reflect.methods;
-        var all = methods.concat(props);
         var names = [];
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                names.push(prop);
+            }
+        }
+        var properties = object.reflect.properties;
+        var methods = object.reflect.methods;
+        var all = methods.concat(properties);
         for (var i = 0; i < all.length; i++) {
-            names.push(all[i].name);
+            var prop = all[i].name;
+            if (hasOwnProperty.call(object, prop) && !(propertyIsEnumerable.call(object, prop))) {
+                names.push(prop);
+            }
         }
         return names;
     };
