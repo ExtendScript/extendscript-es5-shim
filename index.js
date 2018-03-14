@@ -1,3 +1,43 @@
+//filter.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+*/
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.filter called on null or undefined');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var res = [];
+
+    var T = (arguments.length > 1) ? thisArg : void 0;
+    
+    for (var i = 0; i < len; i++) {
+      if (i in t) {
+        var val = t[i];
+
+        // NOTE: Technically this should Object.defineProperty at
+        //       the next index, as push can be affected by
+        //       properties on Object.prototype and Array.prototype.
+        //       But that method's new, and collisions should be
+        //       rare, so use the more-compatible alternative.
+        if (callback.call(T, val, i, t)) {
+          res.push(val);
+        }
+      }
+    }
+
+    return res;
+  };
+}
 //every.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
@@ -62,46 +102,6 @@ if (!Array.prototype.every) {
     return true;
   };
 }
-//filter.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-*/
-if (!Array.prototype.filter) {
-  Array.prototype.filter = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.filter called on null or undefined');
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var res = [];
-
-    var T = (arguments.length > 1) ? thisArg : void 0;
-    
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        var val = t[i];
-
-        // NOTE: Technically this should Object.defineProperty at
-        //       the next index, as push can be affected by
-        //       properties on Object.prototype and Array.prototype.
-        //       But that method's new, and collisions should be
-        //       rare, so use the more-compatible alternative.
-        if (callback.call(T, val, i, t)) {
-          res.push(val);
-        }
-      }
-    }
-
-    return res;
-  };
-}
 //forEach.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
@@ -160,73 +160,36 @@ if (!Array.prototype.forEach) {
         // 8. return undefined
     }
 }
-//indexOf.js
+//bind.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+WARNING! Bound functions used as constructors NOT supported by this polyfill!
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.14
-// Reference: http://es5.github.io/#x15.4.4.14
-if (!Array.prototype.indexOf) {
-  Array.prototype.indexOf = function(searchElement, fromIndex) {
-
-
-    // 1. Let o be the result of calling ToObject passing
-    //    the this value as the argument.
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.indexOf called on null or undefined');
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (this.__class__ !== 'Function') {
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
     }
 
-    var k;
-    var o = Object(this);
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
 
-    // 2. Let lenValue be the result of calling the Get
-    //    internal method of o with the argument "length".
-    // 3. Let len be ToUint32(lenValue).
-    var len = o.length >>> 0;
-
-    // 4. If len is 0, return -1.
-    if (len === 0) {
-      return -1;
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype; 
     }
+    fBound.prototype = new fNOP();
 
-    // 5. If argument fromIndex was passed let n be
-    //    ToInteger(fromIndex); else let n be 0.
-    var n = +fromIndex || 0;
-
-    if (Math.abs(n) === Infinity) {
-      n = 0;
-    }
-
-    // 6. If n >= len, return -1.
-    if (n >= len) {
-      return -1;
-    }
-
-    // 7. If n >= 0, then Let k be n.
-    // 8. Else, n<0, Let k be len - abs(n).
-    //    If k is less than 0, then let k be 0.
-    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
-
-    // 9. Repeat, while k < len
-    while (k < len) {
-      // a. Let Pk be ToString(k).
-      //   This is implicit for LHS operands of the in operator
-      // b. Let kPresent be the result of calling the
-      //    HasProperty internal method of o with argument Pk.
-      //   This step can be combined with c
-      // c. If kPresent is true, then
-      //    i.  Let elementK be the result of calling the Get
-      //        internal method of o with the argument ToString(k).
-      //   ii.  Let same be the result of applying the
-      //        Strict Equality Comparison Algorithm to
-      //        searchElement and elementK.
-      //  iii.  If same is true, return k.
-      if (k in o && o[k] === searchElement) {
-        return k;
-      }
-      k++;
-    }
-    return -1;
+    return fBound;
   };
 }
 //isArray.js
@@ -240,45 +203,6 @@ if (!Array.isArray) {
       return false;
     }
   	return (arg.__class__ === 'Array');
-  };
-}
-//lastIndexOf.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.15
-// Reference: http://es5.github.io/#x15.4.4.15
-if (!Array.prototype.lastIndexOf) {
-  Array.prototype.lastIndexOf = function(searchElement, fromIndex) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.lastIndexOf called on null or undefined');
-    }
-
-    var n, k,
-      t = Object(this),
-      len = t.length >>> 0;
-    if (len === 0) {
-      return -1;
-    }
-
-    n = len - 1;
-    if (arguments.length > 1) {
-      n = Number(arguments[1]);
-      if (n != n) {
-        n = 0;
-      }
-      else if (n != 0 && n != Infinity && n != -Infinity) {
-        n = (n > 0 || -1) * Math.floor(Math.abs(n));
-      }
-    }
-
-    for (k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
-      if (k in t && t[k] === searchElement) {
-        return k;
-      }
-    }
-    return -1;
   };
 }
 //map.js
@@ -365,6 +289,114 @@ if (!Array.prototype.map) {
     return A;
   };
 }
+//indexOf.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf#Polyfill
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.14
+// Reference: http://es5.github.io/#x15.4.4.14
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(searchElement, fromIndex) {
+
+
+    // 1. Let o be the result of calling ToObject passing
+    //    the this value as the argument.
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.indexOf called on null or undefined');
+    }
+
+    var k;
+    var o = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get
+    //    internal method of o with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = o.length >>> 0;
+
+    // 4. If len is 0, return -1.
+    if (len === 0) {
+      return -1;
+    }
+
+    // 5. If argument fromIndex was passed let n be
+    //    ToInteger(fromIndex); else let n be 0.
+    var n = +fromIndex || 0;
+
+    if (Math.abs(n) === Infinity) {
+      n = 0;
+    }
+
+    // 6. If n >= len, return -1.
+    if (n >= len) {
+      return -1;
+    }
+
+    // 7. If n >= 0, then Let k be n.
+    // 8. Else, n<0, Let k be len - abs(n).
+    //    If k is less than 0, then let k be 0.
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+    // 9. Repeat, while k < len
+    while (k < len) {
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the
+      //    HasProperty internal method of o with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      //    i.  Let elementK be the result of calling the Get
+      //        internal method of o with the argument ToString(k).
+      //   ii.  Let same be the result of applying the
+      //        Strict Equality Comparison Algorithm to
+      //        searchElement and elementK.
+      //  iii.  If same is true, return k.
+      if (k in o && o[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}
+//lastIndexOf.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.15
+// Reference: http://es5.github.io/#x15.4.4.15
+if (!Array.prototype.lastIndexOf) {
+  Array.prototype.lastIndexOf = function(searchElement, fromIndex) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.lastIndexOf called on null or undefined');
+    }
+
+    var n, k,
+      t = Object(this),
+      len = t.length >>> 0;
+    if (len === 0) {
+      return -1;
+    }
+
+    n = len - 1;
+    if (arguments.length > 1) {
+      n = Number(arguments[1]);
+      if (n != n) {
+        n = 0;
+      }
+      else if (n != 0 && n != Infinity && n != -Infinity) {
+        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+      }
+    }
+
+    for (k = n >= 0 ? Math.min(n, len - 1) : len - Math.abs(n); k >= 0; k--) {
+      if (k in t && t[k] === searchElement) {
+        return k;
+      }
+    }
+    return -1;
+  };
+}
 //reduce.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
@@ -407,6 +439,36 @@ if (!Array.prototype.reduce) {
     return value;
   };
 }
+//some.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.17
+// Reference: http://es5.github.io/#x15.4.4.17
+if (!Array.prototype.some) {
+  Array.prototype.some = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.some called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    var T = arguments.length > 1 ? thisArg : void 0;
+    for (var i = 0; i < len; i++) {
+      if (i in t && callback.call(T, t[i], i, t)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+}
 //reduceRight.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
@@ -447,132 +509,6 @@ if (!Array.prototype.reduceRight) {
     }
     return value;
   };
-}
-//some.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.17
-// Reference: http://es5.github.io/#x15.4.4.17
-if (!Array.prototype.some) {
-  Array.prototype.some = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.some called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    var T = arguments.length > 1 ? thisArg : void 0;
-    for (var i = 0; i < len; i++) {
-      if (i in t && callback.call(T, t[i], i, t)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-}
-//bind.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
-WARNING! Bound functions used as constructors NOT supported by this polyfill!
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
-*/
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (this.__class__ !== 'Function') {
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    if (this.prototype) {
-      // Function.prototype doesn't have a prototype property
-      fNOP.prototype = this.prototype; 
-    }
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-//trim.js
-/*
-https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
-*/
-if (!String.prototype.trim) {
-	// Вырезаем BOM и неразрывный пробел
-	String.prototype.trim = function() {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
-}
-//create.js
-if (!Object.create) {
-  // Production steps of ECMA-262, Edition 5, 15.2.3.5
-  // Reference: http://es5.github.io/#x15.2.3.5
-  Object.create = (function() {
-    // To save on memory, use a shared constructor
-    function Temp() {}
-
-    // make a safe reference to Object.prototype.hasOwnProperty
-    var hasOwn = Object.prototype.hasOwnProperty;
-
-    return function(O) {
-      // 1. If Type(O) is not Object or Null throw a TypeError exception.
-      if (Object(O) !== O && O !== null) {
-        throw TypeError('Object prototype may only be an Object or null');
-      }
-
-      // 2. Let obj be the result of creating a new object as if by the
-      //    expression new Object() where Object is the standard built-in
-      //    constructor with that name
-      // 3. Set the [[Prototype]] internal property of obj to O.
-      Temp.prototype = O;
-      var obj = new Temp();
-      Temp.prototype = null; // Let's not keep a stray reference to O...
-
-      // 4. If the argument Properties is present and not undefined, add
-      //    own properties to obj as if by calling the standard built-in
-      //    function Object.defineProperties with arguments obj and
-      //    Properties.
-      if (arguments.length > 1) {
-        // Object.defineProperties does ToObject on its first argument.
-        var Properties = Object(arguments[1]);
-        for (var prop in Properties) {
-          if (hasOwn.call(Properties, prop)) {
-            var descriptor = Properties[prop];
-            if (Object(descriptor) !== descriptor) {
-              throw TypeError(prop + 'must be an object');
-            }
-            if ('get' in descriptor || 'set' in descriptor) {
-              throw new TypeError('getters & setters can not be defined on this javascript engine');
-            }
-            if ('value' in descriptor) {
-              obj[prop] = Properties[prop];
-            }
-
-          }
-        }
-      }
-
-      // 5. Return obj
-      return obj;
-    };
-  })();
 }
 //defineProperties.js
 /*
@@ -640,6 +576,113 @@ if (!Object.defineProperties) {
     return object;
   }
 }
+//getOwnPropertyDescriptor.js
+if (!Object.getOwnPropertyDescriptor) {
+
+    Object.getOwnPropertyDescriptor = function getOwnPropertyDescriptor(object, property) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.getOwnPropertyDescriptor can only be called on Objects.');
+        }
+
+        var descriptor;
+        if (!Object.prototype.hasOwnProperty.call(object, property)) {
+            return descriptor;
+        }
+
+        descriptor = {
+            enumerable: Object.prototype.propertyIsEnumerable.call(object, property),
+            configurable: true
+        };
+
+        descriptor.value = object[property];
+
+        var psPropertyType = object.reflect.find(property).type;
+        descriptor.writable = !(psPropertyType === "readonly");
+
+        return descriptor;
+    }
+}
+//getOwnPropertyNames.js
+if (!Object.getOwnPropertyNames) {
+    Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
+
+        if (Object(object) !== object) {
+            throw new TypeError('Object.getOwnPropertyNames can only be called on Objects.');
+        }
+        var names = [];
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                names.push(prop);
+            }
+        }
+        var properties = object.reflect.properties;
+        var methods = object.reflect.methods;
+        var all = methods.concat(properties);
+        for (var i = 0; i < all.length; i++) {
+            var prop = all[i].name;
+            if (hasOwnProperty.call(object, prop) && !(propertyIsEnumerable.call(object, prop))) {
+                names.push(prop);
+            }
+        }
+        return names;
+    };
+}
+//create.js
+if (!Object.create) {
+  // Production steps of ECMA-262, Edition 5, 15.2.3.5
+  // Reference: http://es5.github.io/#x15.2.3.5
+  Object.create = (function() {
+    // To save on memory, use a shared constructor
+    function Temp() {}
+
+    // make a safe reference to Object.prototype.hasOwnProperty
+    var hasOwn = Object.prototype.hasOwnProperty;
+
+    return function(O) {
+      // 1. If Type(O) is not Object or Null throw a TypeError exception.
+      if (Object(O) !== O && O !== null) {
+        throw TypeError('Object prototype may only be an Object or null');
+      }
+
+      // 2. Let obj be the result of creating a new object as if by the
+      //    expression new Object() where Object is the standard built-in
+      //    constructor with that name
+      // 3. Set the [[Prototype]] internal property of obj to O.
+      Temp.prototype = O;
+      var obj = new Temp();
+      Temp.prototype = null; // Let's not keep a stray reference to O...
+
+      // 4. If the argument Properties is present and not undefined, add
+      //    own properties to obj as if by calling the standard built-in
+      //    function Object.defineProperties with arguments obj and
+      //    Properties.
+      if (arguments.length > 1) {
+        // Object.defineProperties does ToObject on its first argument.
+        var Properties = Object(arguments[1]);
+        for (var prop in Properties) {
+          if (hasOwn.call(Properties, prop)) {
+            var descriptor = Properties[prop];
+            if (Object(descriptor) !== descriptor) {
+              throw TypeError(prop + 'must be an object');
+            }
+            if ('get' in descriptor || 'set' in descriptor) {
+              throw new TypeError('getters & setters can not be defined on this javascript engine');
+            }
+            if ('value' in descriptor) {
+              obj[prop] = Properties[prop];
+            }
+
+          }
+        }
+      }
+
+      // 5. Return obj
+      return obj;
+    };
+  })();
+}
 //defineProperty.js
 if (!Object.defineProperty) {
 
@@ -693,52 +736,6 @@ if (!Object.freeze) {
         return object;
     };
 }
-//getOwnPropertyDescriptor.js
-if (!Object.getOwnPropertyDescriptor) {
-
-	Object.getOwnPropertyDescriptor = function getOwnPropertyDescriptor(object, property) {
-	if (Object(object) !== object) 
-		{
-			throw new TypeError('Object.getOwnPropertyDescriptor can only be called on Objects.');
-		}
-
-	var descriptor;
-	if(!Object.prototype.hasOwnProperty.call(object, property))
-		{
-			return descriptor;
-		}
-
-    descriptor = {
-        enumerable: Object.prototype.propertyIsEnumerable.call(object, property),
-        configurable: true
-    };
-
-    descriptor.value = object[property];
-
-    var psPropertyType = object.reflect.find(property).type;
-	descriptor.writable = (psPropertyType === "readwrite");
-
-    return descriptor;
-	}
-}
-//getOwnPropertyNames.js
-if (!Object.getOwnPropertyNames) {
-    Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
-
-        if (Object(object) !== object) {
-            throw new TypeError('Object.getOwnPropertyNames can only be called on Objects.');
-        }
-
-        var props = object.reflect.properties;
-        var methods = object.reflect.methods;
-        var all = methods.concat(props);
-        var names = [];
-        for (var i = 0; i < all.length; i++) {
-            names.push(all[i].name);
-        }
-        return names;
-    };
-}
 //getPrototypeOf.js
 if (!Object.getPrototypeOf) {
 	Object.getPrototypeOf = function(object) {
@@ -747,6 +744,22 @@ if (!Object.getPrototypeOf) {
 		}
 		return object.__proto__;
 	}
+}
+//keys.js
+if (!Object.keys) {
+    Object.keys = function(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.keys can only be called on Objects.');
+        }
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var result = [];
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                result.push(prop);
+            }
+        }
+        return result;
+    };
 }
 //isExtensible.js
 // ES5 15.2.3.13
@@ -787,36 +800,6 @@ if (!Object.isSealed) {
         return false;
     };
 }
-//keys.js
-/*
-Original taken from
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys#Polyfill
-
-Ther is no EnumBug in Photoshop scripting environment, so i cut unused code.
-*/
-
-if (!Object.keys) {
-  Object.keys = (function() {
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-    return function(obj) {
-      if (Object(obj) !== obj) {
-        throw new TypeError('Object.keys can only be called on Objects.');
-      }
-
-      var result = [],
-        prop, i;
-
-      for (prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          result.push(prop);
-        }
-      }
-
-      return result;
-    };
-  }());
-}
 //preventExtensions.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -851,4 +834,14 @@ if (!Object.seal) {
         // but insecure code.
         return object;
     };
+}
+//trim.js
+/*
+https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+*/
+if (!String.prototype.trim) {
+	// Вырезаем BOM и неразрывный пробел
+	String.prototype.trim = function() {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
 }
