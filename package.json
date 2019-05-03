@@ -1,6 +1,6 @@
 {
   "name": "extendscript-es5-shim",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "a collection of useful es5-shims for Extendscript",
   "main": "index.js",
   "scripts": {
