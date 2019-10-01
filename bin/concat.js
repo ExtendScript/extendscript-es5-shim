@@ -1,4 +1,4 @@
-const folders = ['./Array/', './Function/', './Object/', './String/', './Date/'];
+const folders = ['./Array/', './Function/', './JSON/', './Object/', './String/', './Date/'];
 // const testFolder = './Array/';
 const fs = require('fs');
 const path = require('path');
