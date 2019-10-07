@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "a collection of useful es5-shims for Extendscript",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "node bin/concat.js"
