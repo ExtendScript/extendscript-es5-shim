@@ -170,6 +170,13 @@ interface JSON {
  */
 declare var JSON: JSON;
 
+// String.d.ts
+
+interface String {
+    /** Removes the leading and trailing white space and line terminator characters from a string. */
+    trim(): string;
+}
+
 // Object.d.ts
 
 
@@ -284,13 +291,6 @@ interface ObjectConstructor {
  * Provides functionality common to all JavaScript objects.
  */
 declare var Object: ObjectConstructor;
-
-// String.d.ts
-
-interface String {
-    /** Removes the leading and trailing white space and line terminator characters from a string. */
-    trim(): string;
-}
 
 // Date.d.ts
 
