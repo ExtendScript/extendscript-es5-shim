@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "bundle": "node bin/concat.js"
   },
   "repository": {
@@ -30,7 +30,8 @@
   },
   "homepage": "https://github.com/ExtendScript/extendscript-es5-shim#readme",
   "devDependencies": {
-    "cat": "^0.2.0"
+    "cat": "^0.2.0",
+    "jest": "^24.9.0"
   },
   "dependencies": {},
   "author": "Fabian Morón Zirfas <fabian.moron.zirfas@gmail.com> (http://fabianmoronzirfas.me)"
