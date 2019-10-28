@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "target": "es3"
+  },
+  "exclude": ["node_modules", "__tests__"]
+}
