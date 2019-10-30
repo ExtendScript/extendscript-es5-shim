@@ -60,4 +60,10 @@ describe("Array functions", function() {
     const arr = [4, 1, 2, 3, 4];
     expect(arr.map(function(x) {return x * 2})).toEqualArray([8, 2, 4, 6, 8]);
   });
+
+  // array.reduce
+  test('array reduce (sum) on [1, 2, 3, 4, 5] should return 15', function() {
+    const arr = [1, 2, 3, 4, 5];
+    expect(arr.reduce(function(acc, val) { return acc += val},0)).toBe(15);
+  })
 });
