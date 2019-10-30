@@ -1,4 +1,4 @@
-// @target illustrator
+// @target indesign
 // @include ./assertions.js
 // @include ../index.js
 
