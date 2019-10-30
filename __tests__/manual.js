@@ -65,5 +65,17 @@ describe("Array functions", function() {
   test('array reduce (sum) on [1, 2, 3, 4, 5] should return 15', function() {
     const arr = [1, 2, 3, 4, 5];
     expect(arr.reduce(function(acc, val) { return acc += val},0)).toBe(15);
+  });
+
+  // array.reduceRight
+  test('array reduceRight on [1, 2, 3, 4, 5] should return 15, and index should iterate this way [4, 3, 2, 1, 0]', function(){
+    const arr = [1, 2, 3, 4, 5];
+    const indexArr = [];
+    const sum = arr.reduceRight(function(acc, val, index) {
+      indexArr.push(index);
+      return acc += val;
+    }, 0);
+    expect(sum).toBe(15);
+    expect(indexArr).toEqualArray([4, 3, 2, 1, 0]);
   })
 });
