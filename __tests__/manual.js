@@ -33,4 +33,9 @@ describe("Array functions", function() {
 
     expect(newArr).toEqualArray([2, 3, 4]);
   });
+  // array.indexOf
+  test("array indexOf (4) in [1, 2, 3, 4, 5, 6] should return 3", function() {
+    const arr = [1, 2, 3, 4, 5, 6];
+    expect(arr.indexOf(4)).toBe(3);
+  });
 });
