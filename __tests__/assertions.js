@@ -33,6 +33,16 @@ function expect(actual) {
         throw new Error(actual + " is not equal to " + expected);
       }
     },
+    toEqualArray: function(expected) {
+      if (Array.isArray(actual)) {
+        for(var i = 0; i < actual.length; ++i) {
+          if (actual[i] !== expected[i])
+            throw new Error(actual + " is not equal to " + expected);
+        }
+      } else {
+        throw new Error(actual + " is not equal to " + expected);
+      }
+    },
     toBeGreaterThen: function(expected) {
       if (actual <= expected) {
         throw new Error(actual + " is not greater then " + expected);
