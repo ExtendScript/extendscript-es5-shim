@@ -77,5 +77,11 @@ describe("Array functions", function() {
     }, 0);
     expect(sum).toBe(15);
     expect(indexArr).toEqualArray([4, 3, 2, 1, 0]);
-  })
+  });
+
+  // array.some
+  test('array some (val % 2 === 0) should return true', function() {
+    const arr = [1, 2, 3, 4, 5];
+    expect(arr.some(function(val) {return val % 2 === 0})).toBe(true);
+  });
 });
