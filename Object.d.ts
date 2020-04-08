@@ -29,6 +29,13 @@ interface PropertyDescriptorMap {
     [s: string]: PropertyDescriptor;
 }
 
+declare type PropertyKey = string | number | symbol;
+
+/**
+ * Marker for contextual 'this' type
+ */
+interface ThisType<T> { }
+
 interface ObjectConstructor {
     /**
      * Creates an object that has the specified prototype or that has null prototype.
