@@ -122,7 +122,6 @@ interface Array<T> {
     some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean;
 }
 
-declare var Array: ArrayConstructor;
 // Function.d.ts
 
 /**
@@ -286,11 +285,6 @@ interface ObjectConstructor {
      */
     seal<T>(o: T): T;
 }
-
-/**
- * Provides functionality common to all JavaScript objects.
- */
-declare var Object: ObjectConstructor;
 
 // Date.d.ts
 

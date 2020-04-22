@@ -127,8 +127,3 @@ interface ObjectConstructor {
      */
     seal<T>(o: T): T;
 }
-
-/**
- * Provides functionality common to all JavaScript objects.
- */
-declare var Object: ObjectConstructor;

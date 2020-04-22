@@ -120,5 +120,3 @@ interface Array<T> {
      */
     some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean;
 }
-
-declare var Array: ArrayConstructor;
