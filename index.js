@@ -1,3 +1,43 @@
+//filter.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+*/
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.filter called on null or undefined');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var res = [];
+
+    var T = (arguments.length > 1) ? thisArg : void 0;
+    
+    for (var i = 0; i < len; i++) {
+      if (i in t) {
+        var val = t[i];
+
+        // NOTE: Technically this should Object.defineProperty at
+        //       the next index, as push can be affected by
+        //       properties on Object.prototype and Array.prototype.
+        //       But that method's new, and collisions should be
+        //       rare, so use the more-compatible alternative.
+        if (callback.call(T, val, i, t)) {
+          res.push(val);
+        }
+      }
+    }
+
+    return res;
+  };
+}
 //every.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
@@ -60,46 +100,6 @@ if (!Array.prototype.every) {
       k++;
     }
     return true;
-  };
-}
-//filter.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-*/
-if (!Array.prototype.filter) {
-  Array.prototype.filter = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.filter called on null or undefined');
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var res = [];
-
-    var T = (arguments.length > 1) ? thisArg : void 0;
-    
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        var val = t[i];
-
-        // NOTE: Technically this should Object.defineProperty at
-        //       the next index, as push can be affected by
-        //       properties on Object.prototype and Array.prototype.
-        //       But that method's new, and collisions should be
-        //       rare, so use the more-compatible alternative.
-        if (callback.call(T, val, i, t)) {
-          res.push(val);
-        }
-      }
-    }
-
-    return res;
   };
 }
 //indexOf.js
@@ -242,47 +242,6 @@ if (!Array.prototype.forEach) {
         // 8. return undefined
     }
 }
-//reduceRight.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.22
-// Reference: http://es5.github.io/#x15.4.4.22
-if (!Array.prototype.reduceRight) {
-  Array.prototype.reduceRight = function(callback, initialValue) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduceRight called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = len - 1, value;
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k >= 0 && !(k in t)) {
-          k--;
-        }
-        if (k < 0) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k--];
-      }
-      
-    for (; k >= 0; k--) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
-  };
-}
 //lastIndexOf.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
@@ -322,6 +281,132 @@ if (!Array.prototype.lastIndexOf) {
     return -1;
   };
 }
+//map.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.19
+// Reference: http://es5.github.io/#x15.4.4.19
+if (!Array.prototype.map) {
+
+  Array.prototype.map = function(callback, thisArg) {
+
+    var T, A, k;
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.map called on null or undefined');
+    }
+
+    // 1. Let O be the result of calling ToObject passing the |this| 
+    //    value as the argument.
+    var O = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get internal 
+    //    method of O with the argument "length".
+    // 3. Let len be ToUint32(lenValue).
+    var len = O.length >>> 0;
+
+    // 4. If IsCallable(callback) is false, throw a TypeError exception.
+    // See: http://es5.github.com/#x9.11
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+    T = (arguments.length > 1) ? thisArg : void 0;
+
+    // 6. Let A be a new array created as if by the expression new Array(len) 
+    //    where Array is the standard built-in constructor with that name and 
+    //    len is the value of len.
+    A = new Array(len);
+
+    for (var k = 0; k < len; k++) {
+
+      var kValue, mappedValue;
+
+      // a. Let Pk be ToString(k).
+      //   This is implicit for LHS operands of the in operator
+      // b. Let kPresent be the result of calling the HasProperty internal 
+      //    method of O with argument Pk.
+      //   This step can be combined with c
+      // c. If kPresent is true, then
+      if (k in O) {
+
+        // i. Let kValue be the result of calling the Get internal 
+        //    method of O with argument Pk.
+        kValue = O[k];
+
+        // ii. Let mappedValue be the result of calling the Call internal 
+        //     method of callback with T as the this value and argument 
+        //     list containing kValue, k, and O.
+        mappedValue = callback.call(T, kValue, k, O);
+
+        // iii. Call the DefineOwnProperty internal method of A with arguments
+        // Pk, Property Descriptor
+        // { Value: mappedValue,
+        //   Writable: true,
+        //   Enumerable: true,
+        //   Configurable: true },
+        // and false.
+
+        // In browsers that support Object.defineProperty, use the following:
+        // Object.defineProperty(A, k, {
+        //   value: mappedValue,
+        //   writable: true,
+        //   enumerable: true,
+        //   configurable: true
+        // });
+
+        // For best browser support, use the following:
+        A[k] = mappedValue;
+      }
+    }
+    // 9. return A
+    return A;
+  };
+}
+//reduce.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = 0, value;
+
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k < len && !(k in t)) {
+          k++; 
+        }
+        if (k >= len) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k++];
+      }
+
+    for (; k < len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}
 //some.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
@@ -350,6 +435,47 @@ if (!Array.prototype.some) {
     }
 
     return false;
+  };
+}
+//reduceRight.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.22
+// Reference: http://es5.github.io/#x15.4.4.22
+if (!Array.prototype.reduceRight) {
+  Array.prototype.reduceRight = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduceRight called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = len - 1, value;
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k >= 0 && !(k in t)) {
+          k--;
+        }
+        if (k < 0) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k--];
+      }
+      
+    for (; k >= 0; k--) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
   };
 }
 //bind.js
@@ -659,22 +785,6 @@ if (!Object.isSealed) {
         return false;
     };
 }
-//keys.js
-if (!Object.keys) {
-    Object.keys = function(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.keys can only be called on Objects.');
-        }
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
-        var result = [];
-        for (var prop in object) {
-            if (hasOwnProperty.call(object, prop)) {
-                result.push(prop);
-            }
-        }
-        return result;
-    };
-}
 //preventExtensions.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -692,33 +802,6 @@ if (!Object.preventExtensions) {
         // but insecure code.
         return object;
     };
-}
-//seal.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.8
-// http://es5.github.com/#x15.2.3.8
-if (!Object.seal) {
-    Object.seal = function seal(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.seal can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
-//trim.js
-/*
-https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
-*/
-if (!String.prototype.trim) {
-	// Вырезаем BOM и неразрывный пробел
-	String.prototype.trim = function() {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
 }
 //toISOString.js
 /*
@@ -747,89 +830,48 @@ if (!Date.prototype.toISOString) {
 
   }());
 }
-//map.js
+//keys.js
+if (!Object.keys) {
+    Object.keys = function(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.keys can only be called on Objects.');
+        }
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var result = [];
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                result.push(prop);
+            }
+        }
+        return result;
+    };
+}
+//seal.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.19
-// Reference: http://es5.github.io/#x15.4.4.19
-if (!Array.prototype.map) {
-
-  Array.prototype.map = function(callback, thisArg) {
-
-    var T, A, k;
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.map called on null or undefined');
-    }
-
-    // 1. Let O be the result of calling ToObject passing the |this| 
-    //    value as the argument.
-    var O = Object(this);
-
-    // 2. Let lenValue be the result of calling the Get internal 
-    //    method of O with the argument "length".
-    // 3. Let len be ToUint32(lenValue).
-    var len = O.length >>> 0;
-
-    // 4. If IsCallable(callback) is false, throw a TypeError exception.
-    // See: http://es5.github.com/#x9.11
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-    T = (arguments.length > 1) ? thisArg : void 0;
-
-    // 6. Let A be a new array created as if by the expression new Array(len) 
-    //    where Array is the standard built-in constructor with that name and 
-    //    len is the value of len.
-    A = new Array(len);
-
-    for (var k = 0; k < len; k++) {
-
-      var kValue, mappedValue;
-
-      // a. Let Pk be ToString(k).
-      //   This is implicit for LHS operands of the in operator
-      // b. Let kPresent be the result of calling the HasProperty internal 
-      //    method of O with argument Pk.
-      //   This step can be combined with c
-      // c. If kPresent is true, then
-      if (k in O) {
-
-        // i. Let kValue be the result of calling the Get internal 
-        //    method of O with argument Pk.
-        kValue = O[k];
-
-        // ii. Let mappedValue be the result of calling the Call internal 
-        //     method of callback with T as the this value and argument 
-        //     list containing kValue, k, and O.
-        mappedValue = callback.call(T, kValue, k, O);
-
-        // iii. Call the DefineOwnProperty internal method of A with arguments
-        // Pk, Property Descriptor
-        // { Value: mappedValue,
-        //   Writable: true,
-        //   Enumerable: true,
-        //   Configurable: true },
-        // and false.
-
-        // In browsers that support Object.defineProperty, use the following:
-        // Object.defineProperty(A, k, {
-        //   value: mappedValue,
-        //   writable: true,
-        //   enumerable: true,
-        //   configurable: true
-        // });
-
-        // For best browser support, use the following:
-        A[k] = mappedValue;
-      }
-    }
-    // 9. return A
-    return A;
-  };
+// ES5 15.2.3.8
+// http://es5.github.com/#x15.2.3.8
+if (!Object.seal) {
+    Object.seal = function seal(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.seal can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
+}
+//trim.js
+/*
+https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+*/
+if (!String.prototype.trim) {
+	// Вырезаем BOM и неразрывный пробел
+	String.prototype.trim = function() {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
 }
 //json2.js
 //  json2.js
@@ -1363,45 +1405,3 @@ if (typeof JSON !== "object") {
     }
 }());
 
-//reduce.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.21
-// Reference: http://es5.github.io/#x15.4.4.21
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function(callback, initialValue) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduce called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = 0, value;
-
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k < len && !(k in t)) {
-          k++; 
-        }
-        if (k >= len) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k++];
-      }
-
-    for (; k < len; k++) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
-  };
-}
