@@ -1,6 +1,6 @@
 # extendscript-es5-shim
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 A collection of ES5 shims for polyfiling Exendscript (for es6 shims take a look at https://github.com/ExtendScript/extendscript-es6-shim)
 
@@ -84,6 +84,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://andydayton.com/"><img src="https://avatars1.githubusercontent.com/u/151084?v=4?s=64" width="64px;" alt=""/><br /><sub><b>Andy Dayton</b></sub></a><br /><a href="https://github.com/ExtendScript/extendscript-es5-shim/commits?author=andyinabox" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/toddfast"><img src="https://avatars1.githubusercontent.com/u/1125701?v=4?s=64" width="64px;" alt=""/><br /><sub><b>Todd Fast</b></sub></a><br /><a href="https://github.com/ExtendScript/extendscript-es5-shim/commits?author=toddfast" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/lumenn"><img src="https://avatars0.githubusercontent.com/u/15074603?v=4?s=64" width="64px;" alt=""/><br /><sub><b>silmelumenn</b></sub></a><br /><a href="https://github.com/ExtendScript/extendscript-es5-shim/commits?author=lumenn" title="Code">💻</a></td>
+    <td align="center"><a href="https://fabianmoronzirfas.me/"><img src="https://avatars3.githubusercontent.com/u/315106?v=4?s=64" width="64px;" alt=""/><br /><sub><b>Fabian Morón Zirfas</b></sub></a><br /><a href="https://github.com/ExtendScript/extendscript-es5-shim/commits?author=fabianmoronzirfas" title="Code">💻</a></td>
   </tr>
 </table>
 
