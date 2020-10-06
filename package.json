@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/ExtendScript/extendscript-es5-shim#readme",
   "devDependencies": {
+    "all-contributors-cli": "6.18.0",
     "cat": "^0.2.0",
     "jest": "^24.9.0"
   },
