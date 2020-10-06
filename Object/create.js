@@ -39,7 +39,7 @@ if (!Object.create) {
               throw new TypeError('getters & setters can not be defined on this javascript engine');
             }
             if ('value' in descriptor) {
-              obj[prop] = Properties[prop];
+              obj[prop] = Properties[prop].value;
             }
 
           }
