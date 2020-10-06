@@ -27,6 +27,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mudcube",
+      "name": "Michael Deal",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/101564?v=4",
+      "profile": "http://galactic.ink/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7
