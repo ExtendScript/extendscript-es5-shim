@@ -1,4 +1,4 @@
-// Array.d.ts
+// Function.d.ts
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -13,6 +13,20 @@ MERCHANTABLITY OR NON-INFRINGEMENT.
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
+
+/**
+ * Creates a new function.
+ */
+interface Function {
+    /**
+     * For a given function, creates a bound function that has the same body as the original function.
+     * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
+     * @param thisArg An object to which the this keyword can refer inside the new function.
+     * @param argArray A list of arguments to be passed to the new function.
+     */
+    bind(this: Function, thisArg: any, ...argArray: any[]): any;
+}
+// Array.d.ts
 
 interface ArrayConstructor {
     isArray(arg: any): arg is any[];
@@ -123,20 +137,6 @@ interface Array<T> {
 }
 
 declare var Array: ArrayConstructor;
-// Function.d.ts
-
-/**
- * Creates a new function.
- */
-interface Function {
-    /**
-     * For a given function, creates a bound function that has the same body as the original function.
-     * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
-     * @param thisArg An object to which the this keyword can refer inside the new function.
-     * @param argArray A list of arguments to be passed to the new function.
-     */
-    bind(this: Function, thisArg: any, ...argArray: any[]): any;
-}
 // JSON.d.ts
 
 interface JSON {
@@ -194,6 +194,13 @@ interface PropertyDescriptor {
 interface PropertyDescriptorMap {
     [s: string]: PropertyDescriptor;
 }
+
+declare type PropertyKey = string | number | symbol;
+
+/**
+ * Marker for contextual 'this' type
+ */
+interface ThisType<T> { }
 
 interface ObjectConstructor {
     /**

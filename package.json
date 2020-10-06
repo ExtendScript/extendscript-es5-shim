@@ -6,7 +6,9 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "jest",
-    "bundle": "node bin/concat.js"
+    "bundle": "node bin/concat.js",
+    "build": "npm run bundle",
+    "prepack": "npm run bundle"
   },
   "repository": {
     "type": "git",
