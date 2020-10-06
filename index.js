@@ -1,43 +1,3 @@
-//filter.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-*/
-if (!Array.prototype.filter) {
-  Array.prototype.filter = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.filter called on null or undefined');
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var res = [];
-
-    var T = (arguments.length > 1) ? thisArg : void 0;
-    
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        var val = t[i];
-
-        // NOTE: Technically this should Object.defineProperty at
-        //       the next index, as push can be affected by
-        //       properties on Object.prototype and Array.prototype.
-        //       But that method's new, and collisions should be
-        //       rare, so use the more-compatible alternative.
-        if (callback.call(T, val, i, t)) {
-          res.push(val);
-        }
-      }
-    }
-
-    return res;
-  };
-}
 //every.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
@@ -100,6 +60,117 @@ if (!Array.prototype.every) {
       k++;
     }
     return true;
+  };
+}
+//filter.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+*/
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.filter called on null or undefined');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var res = [];
+
+    var T = (arguments.length > 1) ? thisArg : void 0;
+    
+    for (var i = 0; i < len; i++) {
+      if (i in t) {
+        var val = t[i];
+
+        // NOTE: Technically this should Object.defineProperty at
+        //       the next index, as push can be affected by
+        //       properties on Object.prototype and Array.prototype.
+        //       But that method's new, and collisions should be
+        //       rare, so use the more-compatible alternative.
+        if (callback.call(T, val, i, t)) {
+          res.push(val);
+        }
+      }
+    }
+
+    return res;
+  };
+}
+//forEach.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.18
+// Reference: http://es5.github.io/#x15.4.4.18
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(callback, thisArg) {
+
+
+        if (this === void 0 || this === null) {
+            throw new TypeError('Array.prototype.forEach called on null or undefined');
+        }
+
+        // 1. Let O be the result of calling toObject() passing the
+        // |this| value as the argument.
+        var O = Object(this);
+
+        // 2. Let lenValue be the result of calling the Get() internal
+        // method of O with the argument "length".
+        // 3. Let len be toUint32(lenValue).
+        var len = O.length >>> 0;
+
+        // 4. If isCallable(callback) is false, throw a TypeError exception. 
+        // See: http://es5.github.com/#x9.11
+        if (callback.__class__ !== 'Function') {
+            throw new TypeError(callback + ' is not a function');
+        }
+
+        // 5. If thisArg was supplied, let T be thisArg; else let
+        // T be undefined.
+        var T = (arguments.length > 1) ? thisArg : void 0;
+
+
+        // 6. Let k be 0
+        //k = 0;
+
+        // 7. Repeat, while k < len
+        for (var k = 0; k < len; k++) {
+            var kValue;
+            // a. Let Pk be ToString(k).
+            //    This is implicit for LHS operands of the in operator
+            // b. Let kPresent be the result of calling the HasProperty
+            //    internal method of O with argument Pk.
+            //    This step can be combined with c
+            // c. If kPresent is true, then
+            if (k in O) {
+                // i. Let kValue be the result of calling the Get internal
+                // method of O with argument Pk.
+                kValue = O[k];
+                // ii. Call the Call internal method of callback with T as
+                // the this value and argument list containing kValue, k, and O.
+                callback.call(T, kValue, k, O);
+            }
+        }
+        // 8. return undefined
+    }
+}
+//isArray.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
+*/
+if (!Array.isArray) {
+  Array.isArray = function(arg) {
+
+    if (arg === void 0 || arg === null) {
+      return false;
+    }
+  	return (arg.__class__ === 'Array');
   };
 }
 //indexOf.js
@@ -171,77 +242,6 @@ if (!Array.prototype.indexOf) {
     return -1;
   };
 }
-//isArray.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
-*/
-if (!Array.isArray) {
-  Array.isArray = function(arg) {
-
-    if (arg === void 0 || arg === null) {
-      return false;
-    }
-  	return (arg.__class__ === 'Array');
-  };
-}
-//forEach.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.18
-// Reference: http://es5.github.io/#x15.4.4.18
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(callback, thisArg) {
-
-
-        if (this === void 0 || this === null) {
-            throw new TypeError('Array.prototype.forEach called on null or undefined');
-        }
-
-        // 1. Let O be the result of calling toObject() passing the
-        // |this| value as the argument.
-        var O = Object(this);
-
-        // 2. Let lenValue be the result of calling the Get() internal
-        // method of O with the argument "length".
-        // 3. Let len be toUint32(lenValue).
-        var len = O.length >>> 0;
-
-        // 4. If isCallable(callback) is false, throw a TypeError exception. 
-        // See: http://es5.github.com/#x9.11
-        if (callback.__class__ !== 'Function') {
-            throw new TypeError(callback + ' is not a function');
-        }
-
-        // 5. If thisArg was supplied, let T be thisArg; else let
-        // T be undefined.
-        var T = (arguments.length > 1) ? thisArg : void 0;
-
-
-        // 6. Let k be 0
-        //k = 0;
-
-        // 7. Repeat, while k < len
-        for (var k = 0; k < len; k++) {
-            var kValue;
-            // a. Let Pk be ToString(k).
-            //    This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the HasProperty
-            //    internal method of O with argument Pk.
-            //    This step can be combined with c
-            // c. If kPresent is true, then
-            if (k in O) {
-                // i. Let kValue be the result of calling the Get internal
-                // method of O with argument Pk.
-                kValue = O[k];
-                // ii. Call the Call internal method of callback with T as
-                // the this value and argument list containing kValue, k, and O.
-                callback.call(T, kValue, k, O);
-            }
-        }
-        // 8. return undefined
-    }
-}
 //lastIndexOf.js
 /*
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
@@ -279,6 +279,151 @@ if (!Array.prototype.lastIndexOf) {
       }
     }
     return -1;
+  };
+}
+//reduce.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.21
+// Reference: http://es5.github.io/#x15.4.4.21
+if (!Array.prototype.reduce) {
+  Array.prototype.reduce = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduce called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = 0, value;
+
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k < len && !(k in t)) {
+          k++; 
+        }
+        if (k >= len) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k++];
+      }
+
+    for (; k < len; k++) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
+  };
+}
+//some.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.17
+// Reference: http://es5.github.io/#x15.4.4.17
+if (!Array.prototype.some) {
+  Array.prototype.some = function(callback, thisArg) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.some called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+
+    var T = arguments.length > 1 ? thisArg : void 0;
+    for (var i = 0; i < len; i++) {
+      if (i in t && callback.call(T, t[i], i, t)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+}
+//bind.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
+
+WARNING! Bound functions used as constructors NOT supported by this polyfill!
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
+*/
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (this.__class__ !== 'Function') {
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype) {
+      // Function.prototype doesn't have a prototype property
+      fNOP.prototype = this.prototype; 
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+//reduceRight.js
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
+*/
+// Production steps of ECMA-262, Edition 5, 15.4.4.22
+// Reference: http://es5.github.io/#x15.4.4.22
+if (!Array.prototype.reduceRight) {
+  Array.prototype.reduceRight = function(callback, initialValue) {
+
+    if (this === void 0 || this === null) {
+      throw new TypeError('Array.prototype.reduceRight called on null or undefined');
+    }
+
+    if (callback.__class__ !== 'Function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    var t = Object(this), len = t.length >>> 0, k = len - 1, value;
+    if (arguments.length > 1) 
+      {
+        value = initialValue;
+      } 
+    else 
+      {
+        while (k >= 0 && !(k in t)) {
+          k--;
+        }
+        if (k < 0) {
+          throw new TypeError('Reduce of empty array with no initial value');
+        }
+        value = t[k--];
+      }
+      
+    for (; k >= 0; k--) {
+      if (k in t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    return value;
   };
 }
 //map.js
@@ -365,150 +510,42 @@ if (!Array.prototype.map) {
     return A;
   };
 }
-//reduce.js
+//toISOString.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.21
-// Reference: http://es5.github.io/#x15.4.4.21
-if (!Array.prototype.reduce) {
-  Array.prototype.reduce = function(callback, initialValue) {
+if (!Date.prototype.toISOString) {
+  (function() {
 
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduce called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = 0, value;
-
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k < len && !(k in t)) {
-          k++; 
-        }
-        if (k >= len) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k++];
+    function pad(number) {
+      if (number < 10) {
+        return '0' + number;
       }
-
-    for (; k < len; k++) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
+      return number;
     }
-    return value;
-  };
+
+    Date.prototype.toISOString = function() {
+      return this.getUTCFullYear() +
+        '-' + pad(this.getUTCMonth() + 1) +
+        '-' + pad(this.getUTCDate()) +
+        'T' + pad(this.getUTCHours()) +
+        ':' + pad(this.getUTCMinutes()) +
+        ':' + pad(this.getUTCSeconds()) +
+        '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
+        'Z';
+    };
+
+  }());
 }
-//some.js
+//trim.js
 /*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
+https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
 */
-// Production steps of ECMA-262, Edition 5, 15.4.4.17
-// Reference: http://es5.github.io/#x15.4.4.17
-if (!Array.prototype.some) {
-  Array.prototype.some = function(callback, thisArg) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.some called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    var T = arguments.length > 1 ? thisArg : void 0;
-    for (var i = 0; i < len; i++) {
-      if (i in t && callback.call(T, t[i], i, t)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-}
-//reduceRight.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/ReduceRight
-*/
-// Production steps of ECMA-262, Edition 5, 15.4.4.22
-// Reference: http://es5.github.io/#x15.4.4.22
-if (!Array.prototype.reduceRight) {
-  Array.prototype.reduceRight = function(callback, initialValue) {
-
-    if (this === void 0 || this === null) {
-      throw new TypeError('Array.prototype.reduceRight called on null or undefined');
-    }
-
-    if (callback.__class__ !== 'Function') {
-      throw new TypeError(callback + ' is not a function');
-    }
-
-    var t = Object(this), len = t.length >>> 0, k = len - 1, value;
-    if (arguments.length > 1) 
-      {
-        value = initialValue;
-      } 
-    else 
-      {
-        while (k >= 0 && !(k in t)) {
-          k--;
-        }
-        if (k < 0) {
-          throw new TypeError('Reduce of empty array with no initial value');
-        }
-        value = t[k--];
-      }
-      
-    for (; k >= 0; k--) {
-      if (k in t) {
-        value = callback(value, t[k], k, t);
-      }
-    }
-    return value;
-  };
-}
-//bind.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Polyfill
-
-WARNING! Bound functions used as constructors NOT supported by this polyfill!
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Bound_functions_used_as_constructors
-*/
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (this.__class__ !== 'Function') {
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    if (this.prototype) {
-      // Function.prototype doesn't have a prototype property
-      fNOP.prototype = this.prototype; 
-    }
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
+if (!String.prototype.trim) {
+	// Вырезаем BOM и неразрывный пробел
+	String.prototype.trim = function() {
+		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	};
 }
 //create.js
 if (!Object.create) {
@@ -667,23 +704,6 @@ if (!Object.defineProperty) {
         return object;
     }
 }
-//freeze.js
-/*
-https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
-*/
-// ES5 15.2.3.9
-// http://es5.github.com/#x15.2.3.9
-if (!Object.freeze) {
-    Object.freeze = function freeze(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.freeze can only be called on Objects.');
-        }
-        // this is misleading and breaks feature-detection, but
-        // allows "securable" code to "gracefully" degrade to working
-        // but insecure code.
-        return object;
-    };
-}
 //getOwnPropertyDescriptor.js
 if (!Object.getOwnPropertyDescriptor) {
 
@@ -785,6 +805,22 @@ if (!Object.isSealed) {
         return false;
     };
 }
+//keys.js
+if (!Object.keys) {
+    Object.keys = function(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.keys can only be called on Objects.');
+        }
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var result = [];
+        for (var prop in object) {
+            if (hasOwnProperty.call(object, prop)) {
+                result.push(prop);
+            }
+        }
+        return result;
+    };
+}
 //preventExtensions.js
 /*
 https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
@@ -801,49 +837,6 @@ if (!Object.preventExtensions) {
         // allows "securable" code to "gracefully" degrade to working
         // but insecure code.
         return object;
-    };
-}
-//toISOString.js
-/*
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-*/
-if (!Date.prototype.toISOString) {
-  (function() {
-
-    function pad(number) {
-      if (number < 10) {
-        return '0' + number;
-      }
-      return number;
-    }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear() +
-        '-' + pad(this.getUTCMonth() + 1) +
-        '-' + pad(this.getUTCDate()) +
-        'T' + pad(this.getUTCHours()) +
-        ':' + pad(this.getUTCMinutes()) +
-        ':' + pad(this.getUTCSeconds()) +
-        '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) +
-        'Z';
-    };
-
-  }());
-}
-//keys.js
-if (!Object.keys) {
-    Object.keys = function(object) {
-        if (Object(object) !== object) {
-            throw new TypeError('Object.keys can only be called on Objects.');
-        }
-        var hasOwnProperty = Object.prototype.hasOwnProperty;
-        var result = [];
-        for (var prop in object) {
-            if (hasOwnProperty.call(object, prop)) {
-                result.push(prop);
-            }
-        }
-        return result;
     };
 }
 //seal.js
@@ -863,15 +856,22 @@ if (!Object.seal) {
         return object;
     };
 }
-//trim.js
+//freeze.js
 /*
-https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+https://github.com/es-shims/es5-shim/blob/master/es5-sham.js
 */
-if (!String.prototype.trim) {
-	// Вырезаем BOM и неразрывный пробел
-	String.prototype.trim = function() {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
+// ES5 15.2.3.9
+// http://es5.github.com/#x15.2.3.9
+if (!Object.freeze) {
+    Object.freeze = function freeze(object) {
+        if (Object(object) !== object) {
+            throw new TypeError('Object.freeze can only be called on Objects.');
+        }
+        // this is misleading and breaks feature-detection, but
+        // allows "securable" code to "gracefully" degrade to working
+        // but insecure code.
+        return object;
+    };
 }
 //json2.js
 //  json2.js
