@@ -64,4 +64,25 @@ Use build in `__proto__` property as return value.
 - If you need new folders, add the folder to the top of `./bin/concat.js` into the `folders` array
 
 
+## Tests
 
+To run and write tests in VSCode you'll need this `.vscode/launch.json` file
+
+```json
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "type": "extendscript-debug",
+      "request": "launch",
+      "name": "tests",
+      "program": "${workspaceFolder}/__tests__/manual.js",
+      "stopOnEntry": false
+    }
+  ]
+}
+```

@@ -1,4 +1,5 @@
 .vscode
+!.vscode/launch.json
 
 # Logs
 logs
@@ -37,3 +38,10 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
