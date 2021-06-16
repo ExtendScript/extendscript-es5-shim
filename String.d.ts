@@ -14,6 +14,21 @@ and limitations under the License.
 ***************************************************************************** */
 
 interface String {
+    /** Performs a case-sensitive search to determine whether one string may be found within another string. */
+    includes(search: string, start?: number): boolean;
+
+    /** Determines whether a string begins with the characters of a specified string. */
+    startsWith(search: string, rawPos?: number): boolean;
+
+    /** Determines whether a string ends with the characters of a specified string. */
+    endsWith(search: string, this_len?: number): boolean;
+
     /** Removes the leading and trailing white space and line terminator characters from a string. */
     trim(): string;
+
+    /** Removes the leading white space from a string. */
+    trimStart(): string;
+
+    /** Removes the trailing white space from a string. */
+    trimEnd(): string;
 }
